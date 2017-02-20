@@ -50,48 +50,16 @@ public:
 					adj[i].push_back(j); // -1!
 			}
 		}
-		
-	}
-
-	/*void AddVertex(char v)
-	{
-		if (adj.find(v) == adj.end())
+		for (int i = 0; i < n_nodes; i++)
 		{
-			++Size;
-			adj.emplace(pair<char, list<char>>(v, *(new list<char>())));
-			visited.emplace(pair<char, bool>(v, false));
-			used.emplace(pair<char, int>(v, 0));
+			for (int j = 0; j < n_nodes; j++)
+			{
+				if (i == j)
+					result[i][j] = INT_MIN;
+				else result[i][j] = 0;
+			}
 		}
-	}*/
-
-	//void AddEdge(char v1, char v2)
-	//{
-	//	if (v1 == '\0' || v2 == '\0')
-	//		return;
-	//	if (find(adj[v1].begin(), adj[v1].end(), v2) == adj[v1].end())
-	//		adj[v1].emplace_back(v2);
-	//}
-
-	/*void top_sort_ut(int v)
-	{
-		visited[v] = true;
-		for (auto i = adj[v].begin(); i != adj[v].end(); ++i)
-			if (!visited[*i])
-				top_sort_ut(*i);
-		order.push(v);
 	}
-
-	void top_sort()
-	{
-		for (auto v : adj)
-			if (!visited[v.first])
-				top_sort_ut(v.first);
-		ofstream output;
-		output.open(oname);
-		output.clear();
-		for (int i = order.size() - 1; i >= 0; --i)
-			output << order[i];
-	}*/
 
 	void top_sort(int v)
 	{
@@ -102,51 +70,81 @@ public:
 		order.push(v);
 	}
 
+	int get_edge_weight(int from, int to)
+	{
+		if (find(adj[from].begin(), adj[from].end(), to) != adj[from].end())
+		{
+			return(vertices_time[from] + vertices_time[to]); // smert
+		}
+		return -1;
+	}
+
+	void out()
+	{
+		ofstream output;
+		output.open(oname);
+		output.clear();
+		for (int i = 0; i < n_nodes; i++)
+		{
+			for (int j = 0; j < n_nodes; j++)
+			{
+				output << result[i][j] << " ";
+			}
+			output << endl;
+		}
+	}
+
 	void get_res(int start_node)
 	{
 		for (int i = 0; i < n_nodes; i++)
 		{
-			for (int j = 0; j < n_nodes; i++)
-			{
-				if (i == j)
-					result[i][j] = 0;
-				else result[i][j] = INT_MIN;
-			}
+			visited[i] = false;
 		}
+
 		for (int i = 0; i < n_nodes; i++)
 		{
 			if (!visited[i])
 				top_sort(i);
 		}
+
+		for (int i = 0; i < n_nodes; i++)
+		{
+			result[start_node][i] = INT_MAX;
+		}
+		result[start_node][start_node] = 0;
+
 		while (!order.empty())
 		{
-			int v = order.top;
+			int v = order.top();
 			order.pop();
 
-			if (result[start_node][v] != INT_MIN)
+			if (result[start_node][v] != INT_MAX)
 			{
-				//??
+				for (int a : adj[v])
+				{
+					int wa = result[start_node][a];
+					int wv = result[start_node][v];
+					int timea = vertices_time[a];
+					if (wa < wv + timea)
+						result[start_node][a] = wv + timea;
+					
+					//if (result[start_node][a] > result[start_node][v] + vertices_time[a])
+						//result[start_node][a] = result[start_node][v] + vertices_time[a];
+				}
+					
 			}
 		}
 	}
 
 };
 
-//void make_vertices(string s, Graph & G)
-//{
-//	for (int i = 0; i < s.length(); i++)
-//	{
-//		G.AddVertex(s[i]);
-//	}
-//}
-
-
 int main()
 {
 	Graph graph = Graph();
-	ofstream output;
-	output.open(oname);
-	output.clear();
-	output << "-";
-	getchar();
+	for (int i = 0; i < graph.n_nodes; i++)
+	{
+		graph.get_res(i);
+	}
+	graph.out();
+	//getchar();
 }
