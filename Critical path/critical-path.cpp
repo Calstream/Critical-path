@@ -1,11 +1,8 @@
-#include<string>
 #include<fstream>
 #include<vector>
 #include<list>
-#include<map>
 #include<stack>
 #include<algorithm>
-#include<stack>
 #include<climits>
 using namespace std;
 
@@ -70,24 +67,30 @@ public:
 		order.push(v);
 	}
 
-	int get_edge_weight(int from, int to)
-	{
-		if (find(adj[from].begin(), adj[from].end(), to) != adj[from].end())
-		{
-			return(vertices_time[from] + vertices_time[to]); // smert
-		}
-		return -1;
-	}
+	//int get_edge_weight(int from, int to)
+	//{
+	//	if (find(adj[from].begin(), adj[from].end(), to) != adj[from].end())
+	//	{
+	//		return(vertices_time[from] + vertices_time[to]); // smert
+	//	}
+	//	return -1;
+	//}
 
 	void out()
 	{
 		ofstream output;
 		output.open(oname);
 		output.clear();
+
+
 		for (int i = 0; i < n_nodes; i++)
 		{
 			for (int j = 0; j < n_nodes; j++)
 			{
+				if (result[i][j] == INT_MIN)
+					result[i][j] = 0; // FU MDA
+				if (result[i][j] != 0)
+					result[i][j] += vertices_time[i];
 				output << result[i][j] << " ";
 			}
 			output << endl;
@@ -109,7 +112,7 @@ public:
 
 		for (int i = 0; i < n_nodes; i++)
 		{
-			result[start_node][i] = INT_MAX;
+			result[start_node][i] = INT_MIN;
 		}
 		result[start_node][start_node] = 0;
 
@@ -118,7 +121,7 @@ public:
 			int v = order.top();
 			order.pop();
 
-			if (result[start_node][v] != INT_MAX)
+			if (result[start_node][v] != INT_MIN)
 			{
 				for (int a : adj[v])
 				{
@@ -127,11 +130,7 @@ public:
 					int timea = vertices_time[a];
 					if (wa < wv + timea)
 						result[start_node][a] = wv + timea;
-					
-					//if (result[start_node][a] > result[start_node][v] + vertices_time[a])
-						//result[start_node][a] = result[start_node][v] + vertices_time[a];
 				}
-					
 			}
 		}
 	}
