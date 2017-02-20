@@ -19,7 +19,7 @@ public:
 	vector<int> vertices_time; // merge vertices+adj (vector<pair<int,list<int>>> -- int - time, list - adj)
 	vector<list<int>> adj;
 	vector<bool> visited;
-	//stack<int> order;
+	stack<int> order;
 	vector<vector<int>> result;
 
 	Graph() 
@@ -93,9 +93,17 @@ public:
 			output << order[i];
 	}*/
 
+	void top_sort(int v)
+	{
+		visited[v] = true;
+		for (int a : adj[v])
+			if (!visited[a])
+				top_sort(a);
+		order.push(v);
+	}
+
 	void get_res(int start_node)
 	{
-		stack<int> order;
 		for (int i = 0; i < n_nodes; i++)
 		{
 			for (int j = 0; j < n_nodes; i++)
@@ -107,7 +115,18 @@ public:
 		}
 		for (int i = 0; i < n_nodes; i++)
 		{
+			if (!visited[i])
+				top_sort(i);
+		}
+		while (!order.empty())
+		{
+			int v = order.top;
+			order.pop();
 
+			if (result[start_node][v] != INT_MIN)
+			{
+				//??
+			}
 		}
 	}
 
