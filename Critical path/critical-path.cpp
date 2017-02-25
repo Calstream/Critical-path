@@ -18,12 +18,11 @@ public:
 	vector<list<int>> adj;
 	vector<bool> visited;
 	vector<int> indegree;
-	queue<int> ind_0;
-	//stack<int> order;
+	queue<int> ind_0; // vertices with indegree == 0
 	queue<int> order;
-	vector<vector<int>> result;
+	vector<int> result;
 
-	Graph() 
+	Graph()
 	{
 		ifstream input;
 		input.open(iname);
@@ -34,7 +33,7 @@ public:
 		result.resize(n_nodes);
 		indegree.resize(n_nodes);
 
-		for (int i = 0; i < n_nodes; i++)
+		for (int i = 0; i < n_nodes; i++) // O(V) ?
 		{
 			int t;
 			input >> t;
@@ -44,9 +43,8 @@ public:
 
 		for (int i = 0; i < n_nodes; i++)
 		{
-			for (int j = 0; j < n_nodes; j++)
+			for (int j = 0; j < n_nodes; j++) // O(V^2) ?
 			{
-				result[i].resize(n_nodes);
 				int is_inc;
 				input >> is_inc;
 				if (is_inc == 1)
@@ -56,39 +54,9 @@ public:
 				}
 			}
 		}
-
-		for (int i = 0; i < n_nodes; i++)
-		{
-			for (int j = 0; j < n_nodes; j++)
-			{
-				if (i == j)
-					result[i][j] = INT_MIN;
-				else result[i][j] = 0;
-			}
-		}
 	}
 
-	void top_sort_ut(int v)
-	{
-		getchar();
-		visited[v] = true;
-		getchar();
-		for (int a : adj[v])
-			if (!visited[a])
-				top_sort_ut(a);
-		order.push(v);
-	}
-
-	void top_sort() // check indegree
-	{
-		for (int i = 0; i < n_nodes; i++)
-		{
-			visited[i] = false;
-		}
-				top_sort_ut(0);
-	}
-
-	void new_top_sort()
+	void top_sort() // O(V+E)
 	{
 		for (int i = 0; i < n_nodes; i++)
 		{
@@ -105,8 +73,8 @@ public:
 			ind_0.pop();
 			order.push(v);
 			for (int a : temp[v])
-				--indegree[a];
-			temp[v].clear(); // congratulations, you played yourself
+				--indegree[a]; // reduce indegree of adjacent vertices and 
+			temp[v].clear(); // }:(						remove v from graph
 			for (int i = 0; i < n_nodes; i++)
 			{
 				if (indegree[i] == 0)
@@ -116,45 +84,16 @@ public:
 				}
 			}
 		}
-
-		/* Store each vertex’s In-Degree in an array
-		2. Initialize a queue with all in-degree zero vertices
-		3. While there are vertices remaining in the queue: 
-		Dequeue and output a vertex 
-		Reduce In-Degree of all vertices adjacent to it by 1
-		Enqueue any of these vertices whose In-Degree became zero */
 	}
 
-	void out()
-	{
-		ofstream output;
-		output.open(oname);
-		output.clear();
-
-
-		for (int i = 0; i < n_nodes; i++)
-		{
-			for (int j = 0; j < n_nodes; j++)
-			{
-				if (result[i][j] == INT_MIN)
-					result[i][j] = 0; // FU MDA
-				if (result[i][j] != 0)
-					result[i][j] += vertices_time[i];
-				output << result[i][j] << " ";
-			}
-			output << endl;
-		}
-	}
-
-
-
-	void get_res(int start_node)
+	// one line
+	void get_result_i(int start_node)
 	{
 		for (int i = 0; i < n_nodes; i++)
 		{
-			result[start_node][i] = INT_MIN;
+			result[i] = INT_MIN;
 		}
-		result[start_node][start_node] = 0;
+		result[start_node] = 0;
 
 		queue<int> order_c = order;
 		while (!order_c.empty())
@@ -162,31 +101,49 @@ public:
 			int v = order_c.front();
 			order_c.pop();
 
-			if (result[start_node][v] != INT_MIN)
+			if (result[v] != INT_MIN)
 			{
 				for (int a : adj[v])
 				{
-					int wa = result[start_node][a];
-					int wv = result[start_node][v];
+					int wa = result[a];
+					int wv = result[v];
 					int timea = vertices_time[a];
 					if (wa < wv + timea)
-						result[start_node][a] = wv + timea;
+						result[a] = wv + timea;
 				}
 			}
 		}
+		for (int i = 0; i < n_nodes; i++)
+		{
+			if (result[i] == INT_MIN)
+				result[i] = 0;
+			else if (result[i] != 0)
+				result[i] += vertices_time[start_node];
+		}
 	}
 
+	// get res and write to file
+	void out()
+	{
+		ofstream output;
+		output.open(oname);
+		output.clear();
+		// all lines
+		for (int i = 0; i < n_nodes; i++)
+		{
+			get_result_i(i);
+			for (int j = 0; j < n_nodes; j++)
+			{
+				output << result[j] << " ";
+			}
+			output << endl;
+		}
+	}
 };
 
 int main()
 {
-	Graph graph = Graph();
-	//graph.top_sort();
-	graph.new_top_sort();
-	for (int i = 0; i < graph.n_nodes; i++)
-	{
-		graph.get_res(i);
-	}
+	Graph graph;
+	graph.top_sort();
 	graph.out();
-	//getchar();
 }
