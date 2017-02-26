@@ -7,7 +7,7 @@
 #include<queue>
 using namespace std;
 
-string const iname = "input.txt";
+string const iname = "test0.txt";
 string const oname = "output.txt";
 
 class Graph
@@ -105,6 +105,8 @@ public:
 			{
 				for (int a : adj[v])
 				{
+					/*if (v == 13 && a == 23)
+						getchar();*/
 					int wa = result[a];
 					int wv = result[v];
 					int timea = vertices_time[a];
@@ -115,12 +117,24 @@ public:
 		}
 		for (int i = 0; i < n_nodes; i++)
 		{
-			if (result[i] == INT_MIN)
-				result[i] = 0;
-			else if (result[i] != 0)
+			if (i != start_node && result[i] >= 0)
 				result[i] += vertices_time[start_node];
+			else
+				result[i] = 0;
 		}
 	}
+
+	/*a -- Матрица смежностей с бесконечностями ориентированного бесконтурного графа
+	// b -- все нули (зачем вообще??????)
+	for (int i = 0; i<N; ++i)
+		for (int k = i + 1; k<N; ++k)
+			for (int j = k + 1; j<N; ++j)
+				if (a[i][j]<a[i][k] + a[k][j])
+				{
+					a[i][j] = a[i][k] + a[k][j];
+					b[i][j] = k;
+				}*/
+	//a - матрица смых длинных расстояний, b - матрица восстановления путей
 
 	// get res and write to file
 	void out()
@@ -131,6 +145,8 @@ public:
 		// all lines
 		for (int i = 0; i < n_nodes; i++)
 		{
+			if (i == 19)
+				getchar();
 			get_result_i(i);
 			for (int j = 0; j < n_nodes; j++)
 			{
